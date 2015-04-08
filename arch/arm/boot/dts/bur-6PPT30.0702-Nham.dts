@@ -1,0 +1,81 @@
+/*
+ * Copyright (C) 2014 Bernecker & Rainer Industrieelektronik GmbH
+ * http://www.br-automation.com
+ *
+ * SPDX-License-Identifier:     GPL-2.0+
+ */
+/dts-v1/;
+
+#include "am33xx.dtsi"
+#include "bur-6PPTxx-ham.dtsi"
+
+/ {
+	factory-settings {
+		version		= <0x0100>;
+		order-no	= "6PPT30.0702-Nham";
+		hw-revision	= "A";
+		serial-no	= "0";
+		rotation	= "none";
+		inversion	= "0 0";
+		axes-swap	= "0";
+	};
+
+	panel {
+		backlight = <&backlight>;
+
+		panel-info {
+			ac-bias		= <255>;
+			ac-bias-intrpt	= <0>;
+			dma-burst-sz	= <16>;
+			bpp		= <32>;
+			fdd		= <0x80>;
+			sync-edge	= <0>;
+			sync-ctrl	= <1>;
+			raster-order	= <0>;
+			fifo-th		= <0>;
+			pwrpin		= <0x00071386>;
+			brightdrv	= <1>;
+			brightfdim	= <500>;
+			brightdef	= <100>;
+		};
+
+		display-timings {
+			default {
+				clock-frequency	= <32000000>;
+				hactive		= <800>;
+				vactive		= <480>;
+				hfront-porch	= <2>;
+				hback-porch	= <192>;
+				hsync-len	= <1>;
+				vfront-porch	= <20>;
+				vback-porch	= <2>;
+				vsync-len	= <1>;
+				hsync-active	= <1>;
+				vsync-active	= <1>;
+				pupdelay	= <10>;
+				pondelay	= <10>;
+			};
+		};
+	};
+
+	pwm1: omap-pwm@timer6 {
+		compatible = "ti,omap-pwm";
+		ti,timers = <&timer6>;
+		#pwm-cells = <3>;
+	};
+
+	backlight: pwm-backlight {
+		compatible = "pwm-backlight";
+		pwms = <&pwm1 0 5000000 0>;
+
+		default-brightness-level = <50>;
+
+		power-supply = <&vmmcsd_fixed>;
+		enable-gpios = <&gpio0 7 0>;
+	};
+};
+
+&cpsw_emac0 {
+	mac-address = [ 00 00 00 00 00 00 ];	/* TODO PME: fill in */
+};
+

@@ -1,0 +1,254 @@
+/*
+ * Copyright (C) 2014 Bernecker & Rainer Industrieelektronik GmbH
+ * http://www.br-automation.com
+ *
+ * SPDX-License-Identifier:     GPL-2.0+
+ */
+
+/ {
+	model = "B&R TS30 HAMRADIO-Version";
+
+	memory {
+		device_type = "memory";
+		reg = <0x80000000 0x10000000>; /* 256 MB */
+	};
+
+	panel {
+		compatible = "ti,tilcdc,panel";
+		status = "okay";
+	};
+
+	vmmcsd_fixed: fixedregulator@0 {
+		compatible = "regulator-fixed";
+		regulator-name = "vmmcsd_fixed";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+	};
+
+	ntc: b57330v2103@5 {
+		compatible = "ntc,b57330v2103";
+		status = "okay";
+		pullup-uv = <1800000>;
+		pullup-ohm = <10000>;
+		pulldown-ohm = <0>;
+		io-channels = <&am335x_adc 1>;
+	};
+
+	pwm0: omap-pwm@timer5 {
+		compatible = "ti,omap-pwm";
+		ti,timers = <&timer5>;
+		#pwm-cells = <3>;
+	};
+
+	beeper: pwm-beep {
+		compatible = "pwm-beeper";
+		pwms = <&pwm0 0 0 0>;
+	};
+};
+
+&uart0 {
+	status = "okay";
+};
+
+&uart1 {
+	status = "okay";
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <400000>;
+
+	tps: tps@24 {
+		reg = <0x24>;
+		compatible = "ti,tps65217";
+	};
+};
+
+&i2c2 {
+	status = "okay";
+	clock-frequency = <100000>;
+};
+
+&cppi41dma  {
+	status = "okay";
+};
+
+&usb {
+	status = "okay";
+};
+
+&usb_ctrl_mod {
+	status = "okay";
+};
+
+&usb0_phy {
+	status = "okay";
+};
+
+&usb1_phy {
+	status = "okay";
+};
+
+&usb0 {
+	status = "okay";
+	dr_mode = "host";
+};
+
+&usb1 {
+	status = "okay";
+	dr_mode = "host";
+};
+
+&davinci_mdio {
+	status = "okay";
+};
+
+&mac {
+	status = "okay";
+};
+
+&cpsw_emac0 {
+	phy_id = <&davinci_mdio>, <1>;
+	phy-mode = "mii";
+};
+
+&cpsw_emac1 {
+	phy_id = <&davinci_mdio>, <2>;
+	phy-mode = "mii";
+};
+
+&mmc2 {
+	vmmc-supply = <&vmmcsd_fixed>;
+	bus-width = <0x4>;
+	ti,non-removable;
+	ti,needs-special-hs-handling;
+	ti,vcc-aux-disable-is-sleep;
+	status = "okay";
+};
+
+&lcdc {
+	status = "okay";
+	ti,no-reset-on-init;
+	ti,no-idle-on-init;
+};
+
+&elm {
+	status = "okay";
+};
+
+&sham {
+	status = "okay";
+};
+
+&aes {
+	status = "okay";
+};
+
+&gpio0 {
+	ti,no-reset-on-init;
+};
+&gpio1 {
+	ti,no-reset-on-init;
+};
+&gpio2 {
+	ti,no-reset-on-init;
+};
+&gpio3 {
+	ti,no-reset-on-init;
+};
+&wdt2 {
+	ti,no-reset-on-init;
+	ti,no-idle-on-init;
+};
+
+&tscadc {
+	status = "okay";
+	tsc {
+		ti,wires = <4>;
+		ti,x-plate-resistance = <200>;
+		ti,zx-cutoff-ratio = <60>;
+		ti,min_deviation = <30>;
+		ti,max_deviation = <350>;
+		ti,coordinate-readouts = <5>;
+		ti,wire-config = <0x30 0x21 0x13 0x02>;
+
+		bnr-buttons {
+			Home-Button {};
+		};
+	};
+
+	adc {
+		ti,adc-channels = <4 5 6 7>;
+	};
+};
+
+&gpmc {
+	status = "okay";
+	pinctrl-names = "default";
+	ranges = <0 0 0x08000000 0x10000000>;	/* CS0: NAND */
+	nand@0,0 {
+		reg = <0 0 0>; /* CS0, offset 0 */
+		ti,nand-ecc-opt = "bch8";
+		ti,elm-id = <&elm>;
+		nand-bus-width = <8>;
+		gpmc,device-width = <1>;
+		gpmc,sync-clk-ps = <0>;
+		gpmc,cs-on-ns = <0>;
+		gpmc,cs-rd-off-ns = <44>;
+		gpmc,cs-wr-off-ns = <44>;
+		gpmc,adv-on-ns = <6>;
+		gpmc,adv-rd-off-ns = <34>;
+		gpmc,adv-wr-off-ns = <44>;
+		gpmc,we-on-ns = <0>;
+		gpmc,we-off-ns = <40>;
+		gpmc,oe-on-ns = <0>;
+		gpmc,oe-off-ns = <54>;
+		gpmc,access-ns = <64>;
+		gpmc,rd-cycle-ns = <82>;
+		gpmc,wr-cycle-ns = <82>;
+		gpmc,wait-on-read = "true";
+		gpmc,wait-on-write = "true";
+		gpmc,bus-turnaround-ns = <0>;
+		gpmc,cycle2cycle-delay-ns = <0>;
+		gpmc,clk-activation-ns = <0>;
+		gpmc,wait-monitoring-ns = <0>;
+		gpmc,wr-access-ns = <40>;
+		gpmc,wr-data-mux-bus-ns = <0>;
+		gpmc,num-waitpins = <2>;
+		gpmc,wait-pin = <1>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		partition@0 {
+			label = "NAND.MLO";
+			reg = <0x00000000 0x000020000>;
+		};
+		partition@1 {
+			label = "NAND.MLO.backup";
+			reg = <0x00020000 0x00020000>;
+		};
+		partition@2 {
+			label = "NAND.dtb";
+			reg = <0x00040000 0x00020000>;
+		};
+		partition@3 {
+			label = "NAND.u-boot-env";
+			reg = <0x00060000 0x00020000>;
+		};
+		partition@4 {
+			label = "NAND.u-boot";
+			reg = <0x00080000 0x00080000>;
+		};
+		partition@5 {
+			label = "NAND.kernel";
+			reg = <0x00100000 0x00400000>;
+		};
+		partition@6 {
+			label = "NAND.rootfs";
+			reg = <0x00500000 0x08000000>;
+		};
+		partition@7 {
+			label = "NAND.user";
+			reg = <0x08500000 0x17b00000>;
+		};
+	};
+};
