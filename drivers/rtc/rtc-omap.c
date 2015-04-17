@@ -65,6 +65,10 @@
 #define OMAP_RTC_COMP_MSB_REG		0x50
 #define OMAP_RTC_OSC_REG		0x54
 
+#define OMAP_RTC_SCRATCH0_REG		0x60
+#define OMAP_RTC_SCRATCH1_REG		0x64
+#define OMAP_RTC_SCRATCH2_REG		0x68
+
 #define OMAP_RTC_KICK0_REG		0x6c
 #define OMAP_RTC_KICK1_REG		0x70
 
@@ -117,6 +121,10 @@
 /* OMAP_RTC_KICKER values */
 #define	KICK0_VALUE			0x83e70b13
 #define	KICK1_VALUE			0x95a4f1e0
+
+/* U-Boot Bootcounter */
+#define BOOTCOUNT_MAGIC			0xB0010000
+#define BOOTCOUNT_MAGIC_MASK		0xffff0000
 
 struct omap_rtc;
 
@@ -465,6 +473,47 @@ static void omap_rtc_power_off(void)
 	mdelay(2500);
 }
 
+/* helper for the sysFS */
+static int omap_rtc_show_str_bootcount(struct device *dev,
+				struct device_attribute *attr,
+				char *buf)
+{
+	u32 counter;
+	struct omap_rtc *rtc = dev_get_drvdata(dev);
+
+	counter = rtc_readl(rtc, OMAP_RTC_SCRATCH2_REG) & 0x0000ffff;
+	return sprintf(buf, "%d\n", counter);
+}
+
+static int omap_rtc_store_str_bootcount(struct device *dev,
+				struct device_attribute *attr,
+				const char *buf,
+				size_t count)
+{
+	int r;
+	u32 value;
+	u32 magic;
+
+	struct omap_rtc *rtc = dev_get_drvdata(dev);
+
+	magic = rtc_readl(rtc, OMAP_RTC_SCRATCH2_REG);
+	magic &= BOOTCOUNT_MAGIC_MASK;
+
+	if (magic != BOOTCOUNT_MAGIC)
+		return -EINVAL;
+
+	r = kstrtou32(buf, 0, &value);
+	if (r < 0)
+		return -EINVAL;
+
+	rtc_writel(rtc, OMAP_RTC_SCRATCH2_REG, BOOTCOUNT_MAGIC | value);
+	return count;
+}
+
+static DEVICE_ATTR(bootcount, S_IWUSR | S_IRUGO,
+		    omap_rtc_show_str_bootcount,
+		    omap_rtc_store_str_bootcount);
+
 static struct rtc_class_ops omap_rtc_ops = {
 	.read_time	= omap_rtc_read_time,
 	.set_time	= omap_rtc_set_time,
@@ -526,6 +575,7 @@ static int omap_rtc_probe(struct platform_device *pdev)
 	struct omap_rtc	*rtc;
 	struct resource	*res;
 	u8 reg, mask, new_ctrl;
+	u32 reg32;
 	const struct platform_device_id *id_entry;
 	const struct of_device_id *of_id;
 	int ret;
@@ -658,6 +708,18 @@ static int omap_rtc_probe(struct platform_device *pdev)
 		}
 	}
 
+	/* implementation for u-boot bootcount */
+	reg32 = rtc_readl(rtc, OMAP_RTC_SCRATCH2_REG);
+	if ((reg32 & BOOTCOUNT_MAGIC_MASK) == BOOTCOUNT_MAGIC) {
+		dev_info(&pdev->dev, "have a u-boot bootcounter (value: %d)\n",
+			reg32 & ~BOOTCOUNT_MAGIC_MASK);
+		dev_set_drvdata((struct device *)rtc->rtc, rtc);
+		if (device_create_file((struct device *)rtc->rtc,
+					&dev_attr_bootcount)) {
+			pr_warn("%s: couldnt register sysfs entry.\n",
+				pdev->name);
+		}
+	}
 	return 0;
 
 err:
