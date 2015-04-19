@@ -12,7 +12,7 @@
 / {
 	factory-settings {
 		version		= <0x0100>;
-		order-no	= "6PPT30.0702-Nham";
+		order-no	= "6PPT30.0702-HAMRADIO (NAND)";
 		hw-revision	= "A";
 		serial-no	= "0";
 		rotation	= "none";
@@ -68,7 +68,8 @@
 		compatible = "pwm-backlight";
 		pwms = <&pwm1 0 5000000 0>;
 
-		default-brightness-level = <50>;
+		default-brightness-level = <255>;
+		brightness-levels = <0 16 32 64 128 170 202 234 255>;
 
 		power-supply = <&vmmcsd_fixed>;
 		enable-gpios = <&gpio0 7 0>;
