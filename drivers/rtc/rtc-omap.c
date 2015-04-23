@@ -506,7 +506,9 @@ static int omap_rtc_store_str_bootcount(struct device *dev,
 	if (r < 0)
 		return -EINVAL;
 
+	rtc->type->unlock(rtc);
 	rtc_writel(rtc, OMAP_RTC_SCRATCH2_REG, BOOTCOUNT_MAGIC | value);
+	rtc->type->lock(rtc);
 	return count;
 }
 
