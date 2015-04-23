@@ -14,7 +14,6 @@ for i in `seq 30 -1 1`; do
 done
 
 [ -z $OUTPATH ] && OUTPATH=../$CURPATH-$BRANCH
-[ -z $PMEPATH ] && PMEPATH=/tmp/$CURPATH-$BRANCH"_"dts
 
 if [ "$1" == "modules_install" ]; then
 	echo "removing 'old-modules' in targets tree ..."
@@ -44,30 +43,5 @@ if [ "$1" == "zImage" ]; then
 fi
 
 if [ "$1" == "dtbs" ]; then
-	[ -d $PMEPATH ] && rm -r -f $PMEPATH
 	cp $OUTPATH/arch/arm/boot/dts/bur-6PPT*.dtb $TFTPPATH
-	DTS=`ls -l arch/arm/boot/dts/bur-6PPT*.dts | cut -d "/" -f 5`
-	[ ! -d $PMEPATH ] && mkdir $PMEPATH
-	for i in $DTS; do
-		./cpyPME.sh arch/arm/boot/dts $i $PMEPATH
-	done
-	pushd $PMEPATH > /dev/null
-	ZIPNAME="6PPT30_DTBBASE_V0000_$DATUM.zip"
-	echo "PME output path is $PMEPATH ..."
-	echo "creating $ZIPNAME for SAP-Checkin ..."
-	echo "GIT-Commit: $COMMITID" > readme-dtbbase.txt 
-	[ -r $ZIPNAME ] && rm $ZIPNAME
-	tar -czf dts.tgz *.dtsi readme-dtbbase.txt && zip -q $ZIPNAME dts.tgz && rm dts.tgz
-	rm readme-dtbbase.txt
-
-	DTSFILES=`ls bur-6PPT*.dts`
-	for i in $DTSFILES; do
-		DEVID=`cat $i | grep device-id | cut -d "x" -f 2 | cut -b -4`
-		echo "GIT-Commit: $COMMITID" > readme-$DEVID.txt 
-		ZIPNAME="6PPT30_DTBSPEC_$DEVID"_"$DATUM.zip"
-		echo "creating $ZIPNAME for SAP-Checkin ..."
-		zip -q $ZIPNAME $i readme-$DEVID.txt
-		rm readme-$DEVID.txt
-	done
-	popd >/dev/null
 fi
