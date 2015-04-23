@@ -170,7 +170,7 @@
 		ti,min_deviation = <30>;
 		ti,max_deviation = <350>;
 		ti,coordinate-readouts = <5>;
-		ti,wire-config = <0x30 0x21 0x13 0x02>;
+	        ti,wire-config = <0x00 0x11 0x22 0x33>;
 		ti,charge-delay = <0x800>;
 	};
 
