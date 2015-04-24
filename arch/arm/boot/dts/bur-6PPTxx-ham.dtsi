@@ -13,6 +13,23 @@
 		reg = <0x80000000 0x10000000>; /* 256 MB */
 	};
 
+	chosen {
+		ranges;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		
+		framebuffer: framebuffer@8fbe0000 {
+			compatible = "simple-framebuffer";
+			status = "disabled";
+			reg = <0x8fbe0000 (800 * 480 * 4)>;
+			width = <800>;
+			height = <480>;
+			stride = <(800 * 4)>;
+			format = "a8r8g8b8";
+			clocks = <&dpll_disp_m2_ck>, <&dpll_per_m2_ck>;
+		};
+	};
+
 	panel {
 		compatible = "ti,tilcdc,panel";
 		status = "okay";
