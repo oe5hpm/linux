@@ -36,7 +36,7 @@
 			pwrpin		= <0x00071386>;
 			brightdrv	= <1>;
 			brightfdim	= <500>;
-			brightdef	= <100>;
+			brightdef	= <99>;
 		};
 
 		display-timings {
