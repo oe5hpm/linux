@@ -1,0 +1,69 @@
+/*
+ * Copyright (C) 2014 Bernecker & Rainer Industrieelektronik GmbH
+ * http://www.br-automation.com
+ *
+ * SPDX-License-Identifier:     GPL-2.0+
+ */
+/dts-v1/;
+
+#include "am33xx.dtsi"
+#include "bur-6PPTxx-ham.dtsi"
+
+/ {
+	factory-settings {
+		version		= <0x0100>;
+		order-no	= "6PPT30.0430-HAMRADIO (NAND)";
+		hw-revision	= "A";
+		serial-no	= "0";
+		rotation	= "ud";
+	};
+
+	panel {
+		backlight = <&tps_bl>;
+		panel-info {
+			ac-bias		= <255>;
+			ac-bias-intrpt	= <0>;
+			dma-burst-sz	= <16>;
+			bpp		= <32>;
+			fdd		= <0x80>;
+			sync-edge	= <0>;
+			sync-ctrl	= <1>;
+			raster-order	= <0>;
+			fifo-th		= <0>;
+			pwrpin		= <0x00008605>;
+			brightdrv	= <0>;
+			brightfdim	= <100>;
+			brightdef	= <50>;
+		};
+		display-timings {
+			default {
+				clock-frequency = <14000000>;
+				hactive         = <480>;
+				vactive         = <272>;
+				hfront-porch    = <8>;
+				hback-porch     = <43>;
+				hsync-len       = <10>;
+				vfront-porch    = <4>;
+				vback-porch     = <12>;
+				vsync-len       = <10>;
+				hsync-active    = <0>;
+				vsync-active    = <0>;
+				pupdelay        = <10>;
+				pondelay        = <10>;
+			};
+		};
+	};
+};
+
+&tps {
+	tps_bl: backlight {
+		compatible = "ti,tps65217-bl";
+		isel = <1>;     /* 1 - ISET1, 2 ISET2 */
+		fdim = <1000>;  /* TPS65217_BL_FDIM_1kHZ */
+		default-brightness = <50>;
+	};
+};
+
+&cpsw_emac0 {
+	mac-address = [ 00 00 00 00 00 00 ];	/* TODO PME: fill in */
+};
