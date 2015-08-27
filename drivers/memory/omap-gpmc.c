@@ -2104,6 +2104,10 @@ static int gpmc_probe(struct platform_device *pdev)
 	if (IS_ERR(gpmc_base))
 		return PTR_ERR(gpmc_base);
 
+#ifndef CONFIG_OMAP_GPMC_DEBUG
+	gpmc_write_reg(GPMC_CONFIG, 0);
+#endif
+
 	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
 	if (res == NULL)
 		dev_warn(&pdev->dev, "Failed to get resource: irq\n");
