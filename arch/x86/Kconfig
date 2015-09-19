@@ -1006,7 +1006,7 @@ config X86_THERMAL_VECTOR
 	depends on X86_MCE_INTEL
 
 config X86_LEGACY_VM86
-	bool "Legacy VM86 support (obsolete)"
+	bool "Legacy VM86 support"
 	default n
 	depends on X86_32
 	---help---
@@ -1018,19 +1018,20 @@ config X86_LEGACY_VM86
 	  available to accelerate real mode DOS programs.  However, any
 	  recent version of DOSEMU, X, or vbetool should be fully
 	  functional even without kernel VM86 support, as they will all
-	  fall back to (pretty well performing) software emulation.
+	  fall back to software emulation. Nevertheless, if you are using
+	  a 16-bit DOS program where 16-bit performance matters, vm86
+	  mode might be faster than emulation and you might want to
+	  enable this option.
 
-	  Anything that works on a 64-bit kernel is unlikely to need
-	  this option, as 64-bit kernels don't, and can't, support V8086
-	  mode.  This option is also unrelated to 16-bit protected mode
-	  and is not needed to run most 16-bit programs under Wine.
+	  Note that any app that works on a 64-bit kernel is unlikely to
+	  need this option, as 64-bit kernels don't, and can't, support
+	  V8086 mode. This option is also unrelated to 16-bit protected
+	  mode and is not needed to run most 16-bit programs under Wine.
 
-	  Enabling this option adds considerable attack surface to the
-	  kernel and slows down system calls and exception handling.
+	  Enabling this option increases the complexity of the kernel
+	  and slows down exception handling a tiny bit.
 
-	  Unless you use very old userspace or need the last drop of
-	  performance in your real mode DOS games and can't use KVM,
-	  say N here.
+	  If unsure, say N here.
 
 config VM86
        bool
@@ -1754,6 +1755,7 @@ source kernel/Kconfig.hz
 
 config KEXEC
 	bool "kexec system call"
+	select KEXEC_CORE
 	---help---
 	  kexec is a system call that implements the ability to shutdown your
 	  current kernel, and to start another kernel.  It is like a reboot
@@ -1770,8 +1772,8 @@ config KEXEC
 
 config KEXEC_FILE
 	bool "kexec file based system call"
+	select KEXEC_CORE
 	select BUILD_BIN2C
-	depends on KEXEC
 	depends on X86_64
 	depends on CRYPTO=y
 	depends on CRYPTO_SHA256=y
