@@ -141,7 +141,7 @@ int perf_output_begin(struct perf_output_handle *handle,
 	perf_output_get_handle(handle);
 
 	do {
-		tail = READ_ONCE_CTRL(rb->user_page->data_tail);
+		tail = READ_ONCE(rb->user_page->data_tail);
 		offset = head = local_read(&rb->head);
 		if (!rb->overwrite &&
 		    unlikely(CIRC_SPACE(head, tail, perf_data_size(rb)) < size))
@@ -437,7 +437,10 @@ static struct page *rb_alloc_aux_page(int node, int order)
 
 	if (page && order) {
 		/*
-		 * Communicate the allocation size to the driver
+		 * Communicate the allocation size to the driver:
+		 * if we managed to secure a high-order allocation,
+		 * set its first page's private to this order;
+		 * !PagePrivate(page) means it's just a normal page.
 		 */
 		split_page(page, order);
 		SetPagePrivate(page);
