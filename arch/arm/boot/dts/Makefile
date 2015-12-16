@@ -439,8 +439,8 @@ dtb-$(CONFIG_SOC_AM33XX) += \
 	am335x-pepper.dtb \
 	am335x-lxm.dtb \
 	am335x-chiliboard.dtb \
-	bur-6PPT30.0702-Nham.dtb \
-	bur-6PPT30.0430-Nham.dtb
+	am335x-ppt30-ham72.dtb \
+	am335x-ppt30-ham43.dtb
 dtb-$(CONFIG_ARCH_OMAP4) += \
 	omap4-duovero-parlor.dtb \
 	omap4-panda.dtb \
