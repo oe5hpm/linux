@@ -7,7 +7,7 @@
 /dts-v1/;
 
 #include "am33xx.dtsi"
-#include "bur-6PPTxx-ham.dtsi"
+#include "am335x-ppt30-hamcommon.dtsi"
 
 / {
 	factory-settings {
