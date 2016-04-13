@@ -541,6 +541,7 @@ static struct zswap_pool *zswap_pool_last_get(void)
 	return last;
 }
 
+/* type and compressor must be null-terminated */
 static struct zswap_pool *zswap_pool_find_get(char *type, char *compressor)
 {
 	struct zswap_pool *pool;
@@ -548,10 +549,9 @@ static struct zswap_pool *zswap_pool_find_get(char *type, char *compressor)
 	assert_spin_locked(&zswap_pools_lock);
 
 	list_for_each_entry_rcu(pool, &zswap_pools, list) {
-		if (strncmp(pool->tfm_name, compressor, sizeof(pool->tfm_name)))
+		if (strcmp(pool->tfm_name, compressor))
 			continue;
-		if (strncmp(zpool_get_type(pool->zpool), type,
-			    sizeof(zswap_zpool_type)))
+		if (strcmp(zpool_get_type(pool->zpool), type))
 			continue;
 		/* if we can't get it, it's about to be destroyed */
 		if (!zswap_pool_get(pool))
@@ -869,7 +869,7 @@ static int zswap_writeback_entry(struct zpool *pool, unsigned long handle)
 
 	case ZSWAP_SWAPCACHE_EXIST:
 		/* page is already in the swap cache, ignore for now */
-		page_cache_release(page);
+		put_page(page);
 		ret = -EEXIST;
 		goto fail;
 
@@ -897,7 +897,7 @@ static int zswap_writeback_entry(struct zpool *pool, unsigned long handle)
 
 	/* start writeback */
 	__swap_writepage(page, &wbc, end_swap_bio_write);
-	page_cache_release(page);
+	put_page(page);
 	zswap_written_back_pages++;
 
 	spin_lock(&tree->lock);
